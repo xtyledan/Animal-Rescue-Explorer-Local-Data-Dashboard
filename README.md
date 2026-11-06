@@ -1,80 +1,70 @@
-# Animal Rescue Explorer
+# Animal Rescue Explorer | Local Data Dashboard
 
-**A runnable, read-only Python dashboard for exploring shelter records.** The local application starts with a bundled *synthetic* dataset, so a reviewer can try it without MongoDB, Jupyter, cloud accounts, or private course files.
+**Explore animal records through a filterable local dashboard and a read-only Python HTTP API.**
 
-[![Python tests](https://github.com/xtyledan/Animal-Rescue-Explorer-Local-Data-Dashboard/actions/workflows/python-tests.yml/badge.svg)](https://github.com/xtyledan/Animal-Rescue-Explorer-Local-Data-Dashboard/actions/workflows/python-tests.yml)
+[![Python tests](https://github.com/xtyledan/Animal-Rescue-Explorer-Local-Data-Dashboard/actions/workflows/python-tests.yml/badge.svg)](https://github.com/xtyledan/Animal-Rescue-Explorer-Local-Data-Dashboard/actions/workflows/python-tests.yml) · [Screenshot](docs/screenshot.png) · [Engineering notes](docs/INTERVIEW_NOTES.md) · [MIT License](LICENSE)
 
-![Actual Animal Rescue Explorer in Chromium, displaying the synthetic sample dataset](docs/screenshot.png)
+![Actual Animal Rescue Explorer web dashboard with synthetic data](docs/screenshot.png)
 
-## Run the local dashboard
+*Real browser screenshot from the running local server, captured in GitHub Actions. The ten demo animals are synthetic.*
 
-Requires Python 3.11 or newer. The synthetic-data version uses only the Python standard library.
+## Problem and solution
+
+Reviewing animal records shouldn't require writing database queries. This project combines a simple browser interface, filtering by animal type, breed and outcome, and summary views. **The bundled CSV makes it runnable without credentials or an external database.**
+
+## Quick start
+
+Requires Python 3.11+; the default sample-data mode uses the standard library.
 
 ```bash
 git clone https://github.com/xtyledan/Animal-Rescue-Explorer-Local-Data-Dashboard.git
-cd Grazioso-Salvare-Dashboard-and-Database-Integration
+cd Animal-Rescue-Explorer-Local-Data-Dashboard
 python standalone_dashboard.py
 ```
 
-Open **http://127.0.0.1:8080/**. Use the controls to filter animals by type, breed, or outcome. The dashboard displays summary counts, a breed distribution, a table, and map links for recorded coordinates.
+Open **http://127.0.0.1:8080/**. Choose an animal type, enter part of a breed, or select an outcome. Summary counts, breed distribution, animal records and map links update to match. To use another port: `python standalone_dashboard.py --port 8081`.
 
-To choose another port: `python standalone_dashboard.py --port 8081`.
-
-The sample dataset contains ten clearly labeled fictional animal records. It is for demonstration and testing, not operational shelter data.
-
-## Run tests
-
-The dashboard and filtering tests need no extra Python packages:
+**API example:**
 
 ```bash
-python -m unittest discover -s tests -p 'test_standalone_dashboard.py' -v
+curl "http://127.0.0.1:8080/api/animals?animal_type=Dog&breed=Labrador"
 ```
 
-To run **all** tests, including the MongoDB CRUD wrapper, install PyMongo first:
+Returns JSON with matching records and a `source` indicator.
+
+## How it works
+
+```mermaid
+flowchart LR
+    A[Browser filters] --> B[Local Python HTTP API]
+    B --> C{Data source}
+    C --> D[Synthetic CSV]
+    C --> E[Optional MongoDB]
+    B --> F[Filtered JSON]
+    F --> A
+```
+
+| File | Responsibility |
+| --- | --- |
+| [standalone_dashboard.py](standalone_dashboard.py) | HTTP server, filtering and in-browser visualization |
+| [sample_animals.csv](sample_animals.csv) | Clearly labeled fictional demonstration records |
+| [crud.py](crud.py) | Optional MongoDB adapter, guarded updates and deletes |
+| [tests](tests) | HTTP, filtering and mocked database regression tests |
+| [ProjectTwoDashboard.ipynb](ProjectTwoDashboard.ipynb) | Original coursework notebook; separate environment required |
+
+## Tests and optional database
 
 ```bash
 python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
 ```
 
-GitHub Actions checks the CRUD module, filtering behavior, and local HTTP endpoints. It does **not** conduct browser-based visual tests or verify a real MongoDB connection.
+The default dashboard itself does **not** need PyMongo. Install requirements to run the CRUD tests or use MongoDB. For database mode, set the `MONGO_URI` environment variable with your own authorized credentials; it expects the `AAC.animals` collection. Never put secrets into the repository.
 
-## Optional MongoDB mode
+[GitHub Actions tests](https://github.com/xtyledan/Animal-Rescue-Explorer-Local-Data-Dashboard/actions/workflows/python-tests.yml) cover the local API and mocked CRUD behavior, not production database connectivity.
 
-The separate `crud.py` class uses PyMongo. Configure **MONGO_URI** outside the repository. For PowerShell:
+## Tradeoffs and limitations
 
-```powershell
-$env:MONGO_URI = "mongodb://USER:PASSWORD@HOST:27017/?authSource=admin"
-python standalone_dashboard.py
-```
+The small CSV keeps the demo reproducible; MongoDB offers persistent records but introduces external configuration. The built-in HTTP server is **for localhost**, not a production deployment: it has no authentication, rate limiting, pagination or hosted demo. Visual browser capture is available, but full end-to-end usability tests are not.
 
-For macOS/Linux:
-
-```bash
-export MONGO_URI='mongodb://USER:PASSWORD@HOST:27017/?authSource=admin'
-python standalone_dashboard.py
-```
-
-These values are placeholders. Never commit credentials. The connection expects a MongoDB database named `AAC` with a collection named `animals` and fields such as `animal_type`, `breed`, and `outcome_type`. MongoDB mode is not necessary to run the demo.
-
-## Architecture
-
-| File | Purpose |
-| --- | --- |
-| `standalone_dashboard.py` | Local HTTP server, JSON API, filters, and responsive frontend |
-| `sample_animals.csv` | Ten synthetic animal records |
-| `crud.py` | Configurable MongoDB CRUD operations with guarded update/delete filters |
-| `tests/test_standalone_dashboard.py` | Dashboard HTTP and filter regression tests |
-| `tests/test_crud.py` | Mocked MongoDB CRUD regression tests |
-| `ProjectTwoDashboard.ipynb` | Original coursework notebook retained for reference |
-| `docs/INTERVIEW_NOTES.md` | Technical decisions, limitations, and interview discussion topics |
-
-**Why two data modes?** The synthetic CSV makes the application immediately runnable and reproducible. An optional database adapter demonstrates persistent document storage without making a public demo depend on external infrastructure.
-
-**Limitations:** The included server is intended for localhost use, not internet exposure. It has no authentication, rate limiting, pagination, hosted deployment, or production monitoring. The original notebook depends on unavailable course assets and is not the recommended way to run the demo.
-
-See [engineering notes](docs/INTERVIEW_NOTES.md) for tradeoffs and suggested next steps.
-
-## License
-
-[MIT License](LICENSE). The sample data is synthetic and for demonstration.
+**License:** [MIT](LICENSE). [Portfolio](https://xtyledan.github.io/)
