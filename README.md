@@ -2,14 +2,18 @@
 
 **A runnable, read-only Python dashboard for exploring shelter records.** The local application starts with a bundled *synthetic* dataset, so a reviewer can try it without MongoDB, Jupyter, cloud accounts, or private course files.
 
-[![Python tests](https://github.com/xtyledan/Grazioso-Salvare-Dashboard-and-Database-Integration/actions/workflows/python-tests.yml/badge.svg)](https://github.com/xtyledan/Grazioso-Salvare-Dashboard-and-Database-Integration/actions/workflows/python-tests.yml)
+[![Python tests](https://github.com/xtyledan/Animal-Rescue-Explorer-Local-Data-Dashboard/actions/workflows/python-tests.yml/badge.svg)](https://github.com/xtyledan/Animal-Rescue-Explorer-Local-Data-Dashboard/actions/workflows/python-tests.yml)
+
+![Actual Animal Rescue Explorer in Chromium, displaying the synthetic sample dataset](docs/screenshot.png)
+
+*Actual browser screenshot captured from the running application by [GitHub Actions](https://github.com/xtyledan/Animal-Rescue-Explorer-Local-Data-Dashboard/actions/workflows/capture-demo.yml). No hosted deployment is claimed.*
 
 ## Run the local dashboard
 
 Requires Python 3.11 or newer. The synthetic-data version uses only the Python standard library.
 
 ```bash
-git clone https://github.com/xtyledan/Grazioso-Salvare-Dashboard-and-Database-Integration.git
+git clone https://github.com/xtyledan/Animal-Rescue-Explorer-Local-Data-Dashboard.git
 cd Grazioso-Salvare-Dashboard-and-Database-Integration
 python standalone_dashboard.py
 ```
@@ -72,3 +76,7 @@ These values are placeholders. Never commit credentials. The connection expects 
 **Limitations:** The included server is intended for localhost use, not internet exposure. It has no authentication, rate limiting, pagination, hosted deployment, or production monitoring. The original notebook depends on unavailable course assets and is not the recommended way to run the demo.
 
 See [engineering notes](docs/INTERVIEW_NOTES.md) for tradeoffs and suggested next steps.
+
+## License
+
+[MIT License](LICENSE). The sample data is synthetic and for demonstration.
