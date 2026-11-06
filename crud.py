@@ -1,30 +1,48 @@
+"""MongoDB data access for the animal rescue dashboard.
+
+Set MONGO_URI in the process environment before connecting. Credentials are
+never stored in source code. For tests, inject a compatible MongoClient.
+"""
+
+import os
+
 from pymongo import MongoClient
 
+
 class AnimalShelter:
-    def __init__(self, username="aacuser", password="1234"):
-        # MongoDB connection with hardcoded username and password
-        self.client = MongoClient(f'mongodb://{username}:{password}@nv-desktop-services.apporto.com:32475/?authSource=admin')
-        self.db = self.client['AAC']  # Access the AAC database
-        self.collection = self.db['animals']  # Access the animals collection
+    """CRUD operations for the AAC animals collection."""
 
-    # Create method: Insert a document into the collection
+    def __init__(self, mongo_uri=None, client=None, database_name="AAC",
+                 collection_name="animals"):
+        if client is None:
+            uri = mongo_uri or os.environ.get("MONGO_URI")
+            if not uri:
+                raise ValueError("MONGO_URI must be set to connect to MongoDB")
+            client = MongoClient(uri, serverSelectionTimeoutMS=5000)
+        self.client = client
+        self.db = self.client[database_name]
+        self.collection = self.db[collection_name]
+
     def create(self, data):
-        if data:
-            result = self.collection.insert_one(data)
-            return result.acknowledged  # Returns True if successful, False otherwise
-        else:
-            raise Exception("No data to insert")
+        if not isinstance(data, dict) or not data:
+            raise ValueError("create requires a non-empty document dictionary")
+        return self.collection.insert_one(data).acknowledged
 
-    # Read method: Find documents based on a query (filter)
-    def read(self, query):
-        return list(self.collection.find(query))  # Returns a list of documents
+    def read(self, query=None):
+        if query is None:
+            query = {}
+        if not isinstance(query, dict):
+            raise TypeError("read query must be a dictionary")
+        return list(self.collection.find(query))
 
-    # Update method: Modify documents that match the query
     def update(self, query, update_data):
-        result = self.collection.update_many(query, {'$set': update_data})
-        return result.modified_count  # Returns the number of modified documents
+        if not isinstance(query, dict) or not query:
+            raise ValueError("update requires a non-empty filter")
+        if not isinstance(update_data, dict) or not update_data:
+            raise ValueError("update requires non-empty field changes")
+        return self.collection.update_many(query, {"$set": update_data}).modified_count
 
-    # Delete method: Remove documents that match the query
     def delete(self, query):
-        result = self.collection.delete_many(query)
-        return result.deleted_count  # Returns the number of deleted documents
+        if not isinstance(query, dict) or not query:
+            raise ValueError("delete requires a non-empty filter")
+        return self.collection.delete_many(query).deleted_count
