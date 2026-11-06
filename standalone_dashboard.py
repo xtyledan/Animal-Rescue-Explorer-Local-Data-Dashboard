@@ -17,7 +17,7 @@ FIELDS = ("animal_id", "name", "animal_type", "breed", "outcome_type", "location
 def load_animals():
     if os.getenv("MONGO_URI"):
         from crud import AnimalShelter
-        return [{key: record.get(key, "") for key in FIELDS} for record in AnimalShelter().read({})]
+        return [{key: (record.get(key) if record.get(key) is not None else "") for key in FIELDS} for record in AnimalShelter().read({})]
     with DATA.open(encoding="utf-8", newline="") as file:
         return list(csv.DictReader(file))
 
@@ -84,7 +84,7 @@ async function refresh(){
  const body=el('records');body.replaceChildren();
  for(const r of rows){const tr=node('tr','');for(const k of ['animal_id','name','animal_type','breed','outcome_type'])tr.appendChild(node('td',r[k]));
  const td=node('td',''),lat=Number(r.location_lat),lon=Number(r.location_long);
- if(r.location_lat!==''&&r.location_long!==''&&Number.isFinite(lat)&&Number.isFinite(lon)&&Math.abs(lat)<=90&&Math.abs(lon)<=180){
+ if(r.location_lat!==null&&r.location_lat!==undefined&&r.location_lat!==''&&r.location_long!==null&&r.location_long!==undefined&&r.location_long!==''&&Number.isFinite(lat)&&Number.isFinite(lon)&&Math.abs(lat)<=90&&Math.abs(lon)<=180){
  const a=node('a','Map');a.href='https://www.openstreetmap.org/?mlat='+encodeURIComponent(lat)+'&mlon='+encodeURIComponent(lon)+'#map=12/'+encodeURIComponent(lat)+'/'+encodeURIComponent(lon);a.target='_blank';a.rel='noopener noreferrer';td.appendChild(a)}
  else td.textContent='Unavailable';tr.appendChild(td);body.appendChild(tr)}
  el('status').textContent=rows.length+' matching records · '+(data.source==='sample'?'Synthetic sample':'MongoDB');
