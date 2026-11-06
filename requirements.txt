@@ -1,0 +1,4 @@
+# Database driver for the standalone CRUD module.
+pymongo>=4.6,<5
+# The original notebook additionally needs jupyter-dash, dash, dash-leaflet,
+# plotly, pandas, and a compatible Jupyter environment; versions are unpinned.
