@@ -4,8 +4,10 @@ import threading
 import unittest
 from http.server import ThreadingHTTPServer
 from urllib.request import urlopen
+from unittest.mock import patch, MagicMock
+import os
 
-from standalone_dashboard import Handler, filter_animals, load_animals
+from standalone_dashboard import Handler, filter_animals, load_animals, PAGE
 
 
 class DashboardTests(unittest.TestCase):
@@ -53,6 +55,30 @@ class DashboardTests(unittest.TestCase):
             server.shutdown()
             server.server_close()
             thread.join(timeout=4)
+
+    def test_missing_mongodb_coordinates_are_not_zero(self):
+        fake = MagicMock()
+        fake.read.return_value = [
+            {"animal_id": "A1", "name": "Unknown", "location_lat": None,
+             "location_long": None},
+            {"animal_id": "A2", "name": "Equator", "location_lat": 0,
+             "location_long": 0},
+        ]
+        with patch.dict(os.environ, {"MONGO_URI": "mongodb://example.invalid"}):
+            with patch("crud.AnimalShelter", return_value=fake):
+                result = load_animals()
+        self.assertEqual(result[0]["location_lat"], "")
+        self.assertEqual(result[0]["location_long"], "")
+        self.assertEqual(result[1]["location_lat"], 0)
+        self.assertEqual(result[1]["location_long"], 0)
+
+    def test_client_requires_present_coordinates_before_map_link(self):
+        # The browser also rejects null/undefined coordinates independent
+        # of the server's response normalization.
+        self.assertIn("r.location_lat!==null", PAGE)
+        self.assertIn("r.location_long!==null", PAGE)
+        self.assertIn("r.location_lat!==undefined", PAGE)
+        self.assertIn("r.location_long!==undefined", PAGE)
 
 
 if __name__ == "__main__":
