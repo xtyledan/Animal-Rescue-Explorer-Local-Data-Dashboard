@@ -6,8 +6,6 @@
 
 ![Actual Animal Rescue Explorer in Chromium, displaying the synthetic sample dataset](docs/screenshot.png)
 
-*Actual browser screenshot captured from the running application by [GitHub Actions](https://github.com/xtyledan/Animal-Rescue-Explorer-Local-Data-Dashboard/actions/workflows/capture-demo.yml). No hosted deployment is claimed.*
-
 ## Run the local dashboard
 
 Requires Python 3.11 or newer. The synthetic-data version uses only the Python standard library.
