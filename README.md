@@ -1,37 +1,74 @@
-## Dashboard and Database Integration for Grazioso Salvare
+# Animal Rescue Explorer
 
-## Project Overview
+**A runnable, read-only Python dashboard for exploring shelter records.** The local application starts with a bundled *synthetic* dataset, so a reviewer can try it without MongoDB, Jupyter, cloud accounts, or private course files.
 
-This project involved building a comprehensive data management solution for Grazioso Salvare, integrating a CRUD Python module with dashboard widgets to enable efficient interaction with a database. The solution allows the company to visualize and manage data seamlessly, providing a user-friendly interface for data-driven decision-making.
+[![Python tests](https://github.com/xtyledan/Grazioso-Salvare-Dashboard-and-Database-Integration/actions/workflows/python-tests.yml/badge.svg)](https://github.com/xtyledan/Grazioso-Salvare-Dashboard-and-Database-Integration/actions/workflows/python-tests.yml)
 
-## How Do I Write Maintainable, Readable, and Adaptable Programs?
+## Run the local dashboard
 
-Writing maintainable, readable, and adaptable code is crucial for developing systems that can evolve and scale. Here’s how I achieved this in the CRUD Python module from Project One, which I then integrated with the dashboard in Project Two:
+Requires Python 3.11 or newer. The synthetic-data version uses only the Python standard library.
 
-- **Modular Design**: The CRUD module was designed to handle all database interactions, isolating data access logic from the main application. This separation of concerns means that changes to database logic can be made without impacting other parts of the system, enhancing adaptability.
-- **Descriptive Documentation and Naming**: Clear documentation and descriptive function names ensured that the code was easy to understand for future developers (and my future self), which significantly improves maintainability and readability.
+```bash
+git clone https://github.com/xtyledan/Grazioso-Salvare-Dashboard-and-Database-Integration.git
+cd Grazioso-Salvare-Dashboard-and-Database-Integration
+python standalone_dashboard.py
+```
 
-This modular approach not only supported the integration of the CRUD module with the dashboard but also set a foundation for reusing the module in future projects, where similar database interactions may be required.
+Open **http://127.0.0.1:8080/**. Use the controls to filter animals by type, breed, or outcome. The dashboard displays summary counts, a breed distribution, a table, and map links for recorded coordinates.
 
-## How Do I Approach Problem-Solving as a Computer Scientist?
+To choose another port: `python standalone_dashboard.py --port 8081`.
 
-Problem-solving in computer science often involves breaking down complex requirements into manageable tasks. For this project, I tackled the database and dashboard requirements by:
+The sample dataset contains ten clearly labeled fictional animal records. It is for demonstration and testing, not operational shelter data.
 
-1. **Requirements Analysis**: I began by analyzing Grazioso Salvare’s specific needs for the dashboard and database functionalities, ensuring that my approach aligned with their business goals.
-2. **System Design**: Using the CRUD module, I developed a structured system that allowed dashboard widgets to interact efficiently with the database. 
-3. **Component Integration**: The project required seamless integration between the front-end dashboard and back-end database, a step that involved bridging multiple components to meet user expectations.
+## Run tests
 
-This project differed from previous assignments by requiring a full-stack approach, encompassing both front-end and back-end development. Moving forward, I would continue leveraging modular design and focus on optimization techniques such as normalization and indexing to ensure that databases perform efficiently and remain scalable.
+The dashboard and filtering tests need no extra Python packages:
 
-## What Do Computer Scientists Do, and Why Does It Matter?
+```bash
+python -m unittest discover -s tests -p 'test_standalone_dashboard.py' -v
+```
 
-Computer scientists solve real-world problems by building systems that efficiently manage and process data. In this project, my work helps Grazioso Salvare streamline data handling, improving their workflow and decision-making process.
+To run **all** tests, including the MongoDB CRUD wrapper, install PyMongo first:
 
-- **Enhanced Data Management**: The integration of the CRUD module with the dashboard allows Grazioso Salvare to interact with their data efficiently, performing essential tasks in a user-friendly environment.
-- **Improved Decision-Making**: By enabling data visualization and manipulation, the solution supports informed decisions, directly enhancing the company’s operational capabilities.
+```bash
+python -m pip install -r requirements.txt
+python -m unittest discover -s tests -v
+```
 
-This project exemplifies how computer science contributes to meaningful, practical outcomes that improve organizational efficiency and productivity.
+GitHub Actions checks the CRUD module, filtering behavior, and local HTTP endpoints. It does **not** conduct browser-based visual tests or verify a real MongoDB connection.
 
----
+## Optional MongoDB mode
 
-By focusing on modular design, user-centric functionality, and a systematic approach to problem-solving, this project demonstrates my ability to develop solutions that meet business needs while prioritizing scalability and adaptability.
+The separate `crud.py` class uses PyMongo. Configure **MONGO_URI** outside the repository. For PowerShell:
+
+```powershell
+$env:MONGO_URI = "mongodb://USER:PASSWORD@HOST:27017/?authSource=admin"
+python standalone_dashboard.py
+```
+
+For macOS/Linux:
+
+```bash
+export MONGO_URI='mongodb://USER:PASSWORD@HOST:27017/?authSource=admin'
+python standalone_dashboard.py
+```
+
+These values are placeholders. Never commit credentials. The connection expects a MongoDB database named `AAC` with a collection named `animals` and fields such as `animal_type`, `breed`, and `outcome_type`. MongoDB mode is not necessary to run the demo.
+
+## Architecture
+
+| File | Purpose |
+| --- | --- |
+| `standalone_dashboard.py` | Local HTTP server, JSON API, filters, and responsive frontend |
+| `sample_animals.csv` | Ten synthetic animal records |
+| `crud.py` | Configurable MongoDB CRUD operations with guarded update/delete filters |
+| `tests/test_standalone_dashboard.py` | Dashboard HTTP and filter regression tests |
+| `tests/test_crud.py` | Mocked MongoDB CRUD regression tests |
+| `ProjectTwoDashboard.ipynb` | Original coursework notebook retained for reference |
+| `docs/INTERVIEW_NOTES.md` | Technical decisions, limitations, and interview discussion topics |
+
+**Why two data modes?** The synthetic CSV makes the application immediately runnable and reproducible. An optional database adapter demonstrates persistent document storage without making a public demo depend on external infrastructure.
+
+**Limitations:** The included server is intended for localhost use, not internet exposure. It has no authentication, rate limiting, pagination, hosted deployment, or production monitoring. The original notebook depends on unavailable course assets and is not the recommended way to run the demo.
+
+See [engineering notes](docs/INTERVIEW_NOTES.md) for tradeoffs and suggested next steps.
