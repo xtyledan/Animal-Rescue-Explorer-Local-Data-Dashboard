@@ -1,0 +1,31 @@
+name: Capture actual Animal Rescue dashboard screenshot
+
+on:
+  push:
+    paths:
+      - tools/capture_demo.py
+      - .github/workflows/capture-demo.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install screenshot tools and headless Chromium
+        run: |
+          python -m pip install playwright pillow
+          python -m playwright install --with-deps chromium
+      - name: Capture real web dashboard
+        run: python -m tools.capture_demo
+      - uses: actions/upload-artifact@v4
+        with:
+          name: animal-rescue-dashboard-screenshot
+          path: docs/screenshot.png
+          retention-days: 30
