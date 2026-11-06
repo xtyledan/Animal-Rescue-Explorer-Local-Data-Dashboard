@@ -1,0 +1,11 @@
+animal_id,name,animal_type,breed,outcome_type,location_lat,location_long
+DEMO-001,Juniper,Dog,Labrador Retriever Mix,Adoption,30.2672,-97.7431
+DEMO-002,Maple,Cat,Domestic Shorthair,Transfer,30.3072,-97.7281
+DEMO-003,Scout,Dog,German Shepherd Mix,Adoption,30.2172,-97.7031
+DEMO-004,Milo,Cat,Siamese Mix,Return to Owner,30.2872,-97.7931
+DEMO-005,Clover,Dog,Golden Retriever Mix,Adoption,30.3272,-97.7631
+DEMO-006,Otis,Dog,Chihuahua Mix,Transfer,30.2372,-97.7131
+DEMO-007,Willow,Cat,Domestic Shorthair,Adoption,30.2972,-97.7831
+DEMO-008,Piper,Dog,Labrador Retriever Mix,Return to Owner,30.2572,-97.7331
+DEMO-009,Biscuit,Dog,Beagle Mix,Adoption,30.3172,-97.7731
+DEMO-010,Nova,Cat,Domestic Longhair,Adoption,30.2772,-97.7531
